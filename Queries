@@ -1,0 +1,163 @@
+
+
+•Select all customers with or without orders, for customers with orders list all order information
+
+Select l.CUSTID,l.CUSTNAME,b.ITEMID,b.PRODUCTNAME
+from tbl_customer l
+left join tbl_billing b
+on l.CUSTID=b.CUSTID
+order by l.CUSTID;
+
+•List customers with orders only.
+
+select unique c.CUSTID,c.CUSTNAME,b.ORDER_REF
+from tbl_customer c
+join tbl_order b
+on c.CUSTID=b.CUSTID
+where ORDER_REF='ordered'
+order by c.CUSTID;
+
+•Find a Cartesian product of the customer and order tables
+
+select* from tbl_customer,tbl_order;
+
+•List all items that have not been ordered yet.
+
+select b.ITEMNAME, b.orderstatus
+from  tbl_storeitems b
+ left join tbl_billing a 
+on a.itemid=b.itemid
+where b.orderstatus='no';
+
+•List all ordered items 
+
+select unique c.ITEMID,C.PRODUCTNAME
+from tbl_billing c
+join tbl_storeitems d
+on c.ITEMID=d.ITEMID
+order by c.ITEMID;
+
+•List all orders that the customer did not pay for.
+
+select a. orderid, a.productname, a.paid
+ from tbl_billing a
+join tbl_order b
+on a. orderid=b.orderid
+where a.paid= 'no'
+order by orderid;
+
+
+•List all orders paid with a check (assume you have a separate payment table)
+
+select a.custid, b.productname, c.paymode
+from tbl_order a
+join tbl_billing b
+on a.custid= b.custid
+join tbl_paymentmode c
+on b. custid = c. custid
+where c.paymode='cheque'
+order by custid;
+
+•Give all ordered items in Jan 2014 and not in Jan 2013.
+
+select a.orderid, b.productname, a.orderdate
+from tbl_order a
+join tbl_billing b
+on a.orderid=b.orderid
+where ORDERDATE > '01-JAN-14' AND ORDERDATE <= '30-JAN-14'
+order by orderid;
+
+•List customer names and phone numbers from Texas with orders over $1000.
+
+select a.custid,a.custname,a.contactno,b.state,c.total_amt
+from tbl_customer a
+join tbl_location b
+on a.custid=b.custid
+join tbl_billing c
+on b.custid=c.custid
+where b.state='texas' and c.total_amt>=1000;
+
+
+
+•List all customers names along with their cities weather the customer has a city or not.
+
+select a.custid, b.custname, a.city, a.state
+from tbl_customer b
+left join tbl_location a
+on a.custid=b.custid
+order by custid;
+
+•List all customers with cancelled orders.
+
+select unique c.CUSTID,c.CUSTNAME,b.ORDER_REF
+from tbl_customer c
+join tbl_order b
+on c.CUSTID=b.CUSTID
+where ORDER_REF='cancelled'
+order by c.CUSTID;
+
+•List all vendors and their items (list vendors only who has items in the database.  Assume we have a separate table for vendors)
+
+select a.vendorid,a.vendorname, b.itemname,b.itemid
+from  tbl_storeitems b
+left join tbl_vendors  a
+on a.itemid=b.itemid
+where vendorname is not null
+order by a.vendorid;
+
+•List sales total per month 
+
+select to_char(tbl_order.orderdate,'month')date_month ,SUM(tbl_billing.TOTAL_AMT)amount 
+from tbl_order  
+left join tbl_billing 
+on tbl_order.orderid=tbl_billing.orderid 
+group by to_char(tbl_order.ORDERDATE, 'month') 
+order by date_month;
+
+•List the customer with the highest order total
+
+select a.custid,a.custname, b.orderid,b.total_amt 
+from tbl_customer a
+left join tbl_billing b 
+on a.custid=b.custid 
+where b.TOTAL_AMT=(select max(b.total_amt)
+from tbl_billing b);
+
+•List the address and name of the customers who placed at least  2 orders
+
+select count(*) as order_quantity, l.CUSTID
+from tbl_billing c,tbl_location l
+where c.CUSTID=l.CUSTID
+group by l.CUSTID
+having count(*)>1;
+
+•List the average order total for all customers from Chicago
+
+select AVG(c.total_amt) As average_amt
+from tbl_customer a
+join tbl_location b
+on a.custid=b.custid
+join tbl_billing c
+on b.custid=c.custid
+where b.city='chicago';
+
+
+•For each item list customers’ names who ordered it
+
+select a.custid, a.custname, b.itemid, b.productname
+from TBL_CUSTOMER a
+join TBL_BILLING b
+on a.custid= b.custid
+order by custid; 
+
+
+•List the number of orders for each state (customer’s state).
+
+select  l.state, count(*) as order_quantity
+from tbl_billing c,tbl_location l
+where c.CUSTID=l.CUSTID
+group by l.state
+having count(*)>=1;
+
+
+
